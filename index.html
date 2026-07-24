@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Game Tebak Angka</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .emoji-title {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            color: #b8b8d4;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 20px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            border-color: #7c4dff;
+        }
+
+        input[type="number"]::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-tebak {
+            background: linear-gradient(135deg, #7c4dff, #448aff);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-tebak:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(124, 77, 255, 0.4);
+        }
+
+        .btn-tebak:active {
+            transform: translateY(0);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .message {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message.hint-high {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .message.hint-low {
+            background: rgba(68, 138, 255, 0.2);
+            color: #448aff;
+            border: 1px solid rgba(68, 138, 255, 0.3);
+        }
+
+        .message.win {
+            background: rgba(0, 230, 118, 0.2);
+            color: #00e676;
+            border: 1px solid rgba(0, 230, 118, 0.3);
+            font-size: 18px;
+        }
+
+        .message.default {
+            background: rgba(255, 255, 255, 0.05);
+            color: #b8b8d4;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #7c4dff;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #b8b8d4;
+            margin-top: 5px;
+        }
+
+        .history {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .history-title {
+            color: #b8b8d4;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .confetti {
+            position: fixed;
+            top: -10px;
+            font-size: 24px;
+            animation: fall 3s ease-in forwards;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes fall {
+            to {
+                top: 110vh;
+                transform: rotate(720deg);
+            }
+        }
+
+        .difficulty {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .diff-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #b8b8d4;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .diff-btn.active {
+            background: linear-gradient(135deg, #7c4dff, #448aff);
+            color: white;
+            border-color: transparent;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="emoji-title">🎯</div>
+    <h1>Tebak Angka</h1>
+    <p class="subtitle">Pilih tingkat kesulitan & tebak angkanya!</p>
+
+    <div class="difficulty">
+        <button class="diff-btn active" onclick="setDifficulty(10, this)">Mudah (1-10)</button>
+        <button class="diff-btn" onclick="setDifficulty(50, this)">Sedang (1-50)</button>
+        <button class="diff-btn" onclick="setDifficulty(100, this)">Sulit (1-100)</button>
+    </div>
+
+    <div class="input-group">
+        <input type="number" id="guess" placeholder="?" min="1" max="100">
+    </div>
+
+    <button class="btn-tebak" id="btnTebak" onclick="tebak()">🎯 TEBAK!</button>
+    <button class="btn-reset" id="btnReset" onclick="resetGame()">🔄 Main Lagi</button>
+
+    <div class="message default" id="message">
+        Masukkan angka dan klik TEBAK! 🤔
+    </div>
+
+    <div class="stats">
+        <div class="stat-item">
+            <div class="stat-number" id="percobaan">0</div>
+            <div class="stat-label">Percobaan</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="bestScore">-</div>
+            <div class="stat-label">Rekor Terbaik</div>
+        </div>
+    </div>
+
+    <div class="history" id="historySection" style="display:none;">
+        <div class="history-title">📝 Riwayat Tebakan:</div>
+        <div class="history-list" id="historyList"></div>
+    </div>
+</div>
+
+<script>
+    let maxNumber = 10;
+    let targetNumber = generateRandom();
+    let attempts = 0;
+    let gameOver = false;
+    let history = [];
+    let bestScore = localStorage.getItem('bestScore') || null;
+
+    if (bestScore) {
+        document.getElementById('bestScore').textContent = bestScore;
+    }
+
+    function generateRandom() {
+        return Math.floor(Math.random() * maxNumber) + 1;
+    }
+
+    function setDifficulty(max, btn) {
+        if (!gameOver) {
+            maxNumber = max;
+            document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('guess').max = max;
+            document.getElementById('guess').placeholder = '?';
+            resetGame();
+        }
+    }
+
+    function tebak() {
+        if (gameOver) return;
+
+        const input = document.getElementById('guess');
+        const guess = parseInt(input.value);
+        const msg = document.getElementById('message');
+
+        if (!guess || guess < 1 || guess > maxNumber) {
+            msg.className = 'message default';
+            msg.textContent = `⚠️ Masukkan angka 1 - ${maxNumber}!`;
+            input.focus();
+            return;
+        }
+
+        attempts++;
+        history.push(guess);
+        document.getElementById('percobaan').textContent = attempts;
+
+        // Tampilkan riwayat
+        const historySection = document.getElementById('historySection');
+        const historyList = document.getElementById('historyList');
+        historySection.style.display = 'block';
+
+        const item = document.createElement('span');
+        item.className = 'history-item';
+
+        if (guess === targetNumber) {
+            // MENANG!
+            item.textContent = `${guess} ✅`;
+            historyList.appendChild(item);
+
+            msg.className = 'message win';
+            msg.textContent = `🎉 BENAR! Angkanya ${targetNumber}! (${attempts}x percobaan)`;
+
+            gameOver = true;
+            document.getElementById('btnTebak').style.display = 'none';
+            document.getElementById('btnReset').style.display = 'block';
+            input.disabled = true;
+
+            // Simpan rekor
+            if (!bestScore || attempts < parseInt(bestScore)) {
+                bestScore = attempts;
+                localStorage.setItem('bestScore', bestScore);
+                document.getElementById('bestScore').textContent = bestScore;
+            }
+
+            // Confetti!
+            createConfetti();
+
+        } else if (guess > targetNumber) {
+            item.textContent = `${guess} ⬇️`;
+            historyList.appendChild(item);
+            msg.className = 'message hint-high';
+            msg.textContent = `📉 Terlalu BESAR! Coba lebih kecil`;
+        } else {
+            item.textContent = `${guess} ⬆️`;
+            historyList.appendChild(item);
+            msg.className = 'message hint-low';
+            msg.textContent = `📈 Terlalu KECIL! Coba lebih besar`;
+        }
+
+        input.value = '';
+        input.focus();
+    }
+
+    function resetGame() {
+        targetNumber = generateRandom();
+        attempts = 0;
+        gameOver = false;
+        history = [];
+
+        document.getElementById('percobaan').textContent = '0';
+        document.getElementById('guess').value = '';
+        document.getElementById('guess').disabled = false;
+        document.getElementById('btnTebak').style.display = 'block';
+        document.getElementById('btnReset').style.display = 'none';
+
+        const msg = document.getElementById('message');
+        msg.className = 'message default';
+        msg.textContent = 'Masukkan angka dan klik TEBAK! 🤔';
+
+        document.getElementById('historySection').style.display = 'none';
+        document.getElementById('historyList').innerHTML = '';
+
+        document.getElementById('guess').focus();
+    }
+
+    function createConfetti() {
+        const emojis = ['🎉', '🎊', '⭐', '🌟', '💫', '🏆', '🥳', '✨'];
+        for (let i = 0; i < 30; i++) {
+            setTimeout(() => {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 4000);
+            }, i * 100);
+        }
+    }
+
+    // Enter key support
+    document.getElementById('guess').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') tebak();
+    });
+</script>
+
+</body>
+  </html>
